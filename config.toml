@@ -1,0 +1,5 @@
+NUM_REPORTS = 5000
+CLOUD_ID = "cluster:jlahdslkjfahlsdkjfhadflkjh=="
+USER = "elastic"
+PASSWORD = "lahjsdfkjlhasdf"
+INDEX = "intel-reports"
