@@ -1,0 +1,40 @@
+from elasticsearch import Elasticsearch
+
+# Initialize Elasticsearch client
+es = Elasticsearch()
+
+# Define the ingest pipeline
+ingest_pipeline = {
+    "description": "ELSER_Model2_Intelligence_Docs",
+    "processors": [
+        {
+          "inference": {
+        "model_id": ".elser_model_2",
+        "input_output": [
+            {
+            "input_field": "content",
+            "output_field": "content_embedding"
+            }
+          ]
+        }
+      }
+    ]
+  }
+
+# Create the ingest pipeline in Elasticsearch
+pipeline_name = "embedding_pipeline"
+es.ingest.put_pipeline(id=pipeline_name, body=ingest_pipeline)
+
+# Define your data to ingest
+data_to_ingest = {
+    "text": "Example text to ingest"
+}
+
+# Ingest data while applying the defined pipeline
+index_name = "your_index"
+doc_type = "_doc"  # Elasticsearch 7.x and later requires "_doc"
+es.index(index=index_name, doc_type=doc_type, body=data_to_ingest, pipeline=pipeline_name)
+
+# Optionally, you can verify if the document was ingested with the embedding field added
+document = es.get(index=index_name, id="<document_id>")
+print(document)
