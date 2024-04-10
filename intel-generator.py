@@ -135,10 +135,10 @@ if __name__ == "__main__":
     start_date = datetime(2023, 5, 1)
     end_date = datetime(2024, 4, 3)
 
-    countries = read_file("countries.json")
-    groups = read_file("groups.json")
-    sources = read_file("sources.json")
-    details_options = read_file("details.json")
+    countries = read_file("data/countries.json")
+    groups = read_file("data/groups.json")
+    sources = read_file("data/sources.json")
+    details_options = read_file("data/details.json")
     classifications = [
         "UNCLASSIFIED",
         "HUSH HUSH",
