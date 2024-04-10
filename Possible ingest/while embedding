@@ -12,7 +12,7 @@ ingest_pipeline = {
         "model_id": ".elser_model_2",
         "input_output": [
             {
-            "input_field": "content",
+            "input_field": "summary",
             "output_field": "content_embedding"
             }
           ]
