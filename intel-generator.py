@@ -38,8 +38,14 @@ def setup_es(cloud_id, user, pw, index, reset):
     if not es.indices.exists(index=index):
         logging.info("Creating index")
         mapping = {
+            "_source": {
+                "excludes": [
+                    "content_embedding"
+                ]
+            },
             "properties": {
                 "classification": {"type": "keyword"},
+                "compartments": {"type": "keyword"},
                 "date": {"type": "date"},
                 "details": {"type": "text"},
                 "report_id": {"type": "keyword"},
@@ -57,10 +63,27 @@ def setup_es(cloud_id, user, pw, index, reset):
                 "number_of_shards": "2",
                 "number_of_replicas": "0",
                 "refresh_interval": "-1",
+                "default_pipeline": "intel-workshop",
+                "mapping.total_fields.limit": 5000
             }
         }
         es.indices.create(index=index, mappings=mapping, settings=settings)
 
+    logging.info("Creating/updating ingest pipeline")
+    processors = [
+        {
+            "inference": {
+                "model_id": ".elser_model_2",
+                "input_output": [
+                    {
+                        "input_field": "summary",
+                        "output_field": "summary_embedding"
+                    }
+                ]
+            }
+        }
+    ]
+    es.ingest.put_pipeline(id="intel-workshop", processors=processors)
     return es
 
 
@@ -68,7 +91,7 @@ def bulk_ingest(es, index, docs):
     try:
         logging.info("Sending docs to ES")
         for ok, action in streaming_bulk(
-            client=es, index=index, actions=yield_doc(docs)
+            client=es, index=index, actions=yield_doc(docs), chunk_size=10
         ):
             if not ok:
                 logging.error(f"{ok} {action}")
@@ -122,6 +145,20 @@ if __name__ == "__main__":
         "SUPER SECRET",
         "ULTRA SUPER SECRET",
     ]
+    compartments = [
+        "ALPHA",
+        "BETA",
+        "GAMMA",
+        "SJ",
+        "PCA",
+        "UT",
+        "LLP",
+        "ZZ",
+        "A2",
+        "234",
+        "A52",
+        "B12"
+    ]
 
     logging.info(f"Creating {config_data['NUM_REPORTS']} fake intel reports")
     intelligence_reports = []
@@ -142,6 +179,7 @@ if __name__ == "__main__":
             "summary": summary,
             "details": details,
             "classification": random.choice(classifications),
+            "compartments": random.sample(compartments, random.randint(1, 4))
         }
         intelligence_reports.append(report)
 
