@@ -31,7 +31,7 @@ data_to_ingest = {
 }
 
 # Ingest data while applying the defined pipeline
-index_name = "your_index"
+index_name = "index"
 doc_type = "_doc"  # Elasticsearch 7.x and later requires "_doc"
 es.index(index=index_name, doc_type=doc_type, body=data_to_ingest, pipeline=pipeline_name)
 
