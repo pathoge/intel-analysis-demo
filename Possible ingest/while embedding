@@ -5,7 +5,7 @@ es = Elasticsearch()
 
 # Define the ingest pipeline
 ingest_pipeline = {
-    "description": "ELSER_Model2_Intelligence_Docs",
+    "description": "Intelligence_Docs",
     "processors": [
         {
           "inference": {
@@ -13,7 +13,7 @@ ingest_pipeline = {
         "input_output": [
             {
             "input_field": "summary",
-            "output_field": "content_embedding"
+            "output_field": "summary_embedding"
             }
           ]
         }
@@ -22,7 +22,7 @@ ingest_pipeline = {
   }
 
 # Create the ingest pipeline in Elasticsearch
-pipeline_name = "embedding_pipeline"
+pipeline_name = "ELSER_Model2_Intelligence_Docs"
 es.ingest.put_pipeline(id=pipeline_name, body=ingest_pipeline)
 
 # Define your data to ingest
