@@ -127,6 +127,7 @@ if __name__ == "__main__":
         description="Create a bunch of fake intel reports and index them in Elasticsearch"
     )
     parser.add_argument("-c", "--config", action="store", dest="config_path", default="config.toml")
+    parser.add_argument("-r", "--reset", action="store_true", default=False)
     args = parser.parse_args()
 
 
@@ -188,7 +189,7 @@ if __name__ == "__main__":
         config_data["USER"],
         config_data["PASSWORD"],
         config_data["INDEX"],
-        True,
+        args.reset,
     )
     bulk_ingest(es, config_data["INDEX"], intelligence_reports)
     settings = {"index": {"number_of_replicas": "1", "refresh_interval": "1s"}}
