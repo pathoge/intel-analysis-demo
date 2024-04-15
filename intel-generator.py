@@ -77,7 +77,7 @@ def setup_es(cloud_id, user, pw, index, reset):
                 "input_output": [
                     {
                         "input_field": "summary",
-                        "output_field": "summary_embedding"
+                        "output_field": "summary_embeddings"
                     }
                 ]
             }
