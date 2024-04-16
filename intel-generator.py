@@ -48,6 +48,7 @@ def setup_es(cloud_id, user, pw, index, reset):
                 "compartments": {"type": "keyword"},
                 "date": {"type": "date"},
                 "details": {"type": "text"},
+                "details_embeddings": {"type": "sparse_vector"},
                 "report_id": {"type": "keyword"},
                 "source": {"type": "keyword"},
                 "group": {"type": "keyword"},
@@ -81,6 +82,17 @@ def setup_es(cloud_id, user, pw, index, reset):
                     }
                 ]
             }
+        },
+        {
+            "inference": {
+                "model_id": ".elser_model_2",
+                "input_output": [
+                    {
+                        "input_field": "details",
+                        "output_field": "details_embeddings"
+                    }
+                ]
+            }
         }
     ]
     es.ingest.put_pipeline(id="intel-workshop", processors=processors)
@@ -107,10 +119,21 @@ def yield_doc(docs):
         yield json.dumps(doc)
 
 
-def random_date(start_date, end_date):
-    delta = end_date - start_date
-    random_days = random.randint(0, delta.days)
-    return start_date + timedelta(days=random_days)
+def random_date():
+    current_datetime = datetime.now()
+    past_year = timedelta(days=365)
+    start_date = current_datetime - past_year
+
+    random_timedelta = timedelta(
+        days=random.randint(0, 365),
+        hours=random.randint(0, 23),
+        minutes=random.randint(0, 59),
+        seconds=random.randint(0, 59),
+        microseconds=random.randint(0, 999999)
+    )
+
+    random_datetime = start_date + random_timedelta
+    return random_datetime.strftime("%Y-%m-%dT%H:%M:%S.%f%z")
 
 
 def generate_summary(details):
@@ -130,7 +153,6 @@ if __name__ == "__main__":
     parser.add_argument("-r", "--reset", action="store_true", default=False)
     args = parser.parse_args()
 
-
     config_data = read_config(args.config_path)
 
     start_date = datetime(2023, 5, 1)
@@ -140,26 +162,8 @@ if __name__ == "__main__":
     groups = read_file("data/groups.json")
     sources = read_file("data/sources.json")
     details_options = read_file("data/details.json")
-    classifications = [
-        "UNCLASSIFIED",
-        "HUSH HUSH",
-        "SUPER SECRET",
-        "ULTRA SUPER SECRET",
-    ]
-    compartments = [
-        "ALPHA",
-        "BETA",
-        "GAMMA",
-        "SJ",
-        "PCA",
-        "UT",
-        "LLP",
-        "ZZ",
-        "A2",
-        "234",
-        "A52",
-        "B12"
-    ]
+    classifications = read_file("data/classifications.json")
+    compartments = read_file("data/compartments.json")
 
     logging.info(f"Creating {config_data['NUM_REPORTS']} fake intel reports")
     intelligence_reports = []
@@ -171,7 +175,8 @@ if __name__ == "__main__":
 
         report = {
             "report_id": f"INT-2024-{i+1:03d}",
-            "date": random_date(start_date, end_date).strftime("%Y-%m-%d"),
+            # "date": random_date(start_date, end_date).strftime("%Y-%m-%dT%H:%M:%S.%f%z"),
+            "date": random_date(),
             "source": random.choice(sources),
             "group": group,
             "country.name": country["name"],
