@@ -175,7 +175,6 @@ if __name__ == "__main__":
 
         report = {
             "report_id": f"INT-2024-{i+1:03d}",
-            # "date": random_date(start_date, end_date).strftime("%Y-%m-%dT%H:%M:%S.%f%z"),
             "date": random_date(),
             "source": random.choice(sources),
             "group": group,
