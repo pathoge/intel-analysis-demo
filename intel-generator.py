@@ -40,7 +40,7 @@ def setup_es(cloud_id, user, pw, index, reset):
         mapping = {
             "_source": {
                 "excludes": [
-                    "content_embedding"
+                    "details_embeddings"
                 ]
             },
             "properties": {
@@ -53,7 +53,6 @@ def setup_es(cloud_id, user, pw, index, reset):
                 "source": {"type": "keyword"},
                 "group": {"type": "keyword"},
                 "summary": {"type": "text"},
-                "summary_embeddings": {"type": "sparse_vector"},
                 "country.name": {"type": "keyword"},
                 "country.coordinates": {"type": "geo_point"},
                 "country.code": {"type": "keyword"},
@@ -64,25 +63,13 @@ def setup_es(cloud_id, user, pw, index, reset):
                 "number_of_shards": "2",
                 "number_of_replicas": "0",
                 "refresh_interval": "-1",
-                "default_pipeline": "intel-workshop",
-                "mapping.total_fields.limit": 5000
+                "default_pipeline": "intel-workshop"
             }
         }
         es.indices.create(index=index, mappings=mapping, settings=settings)
 
     logging.info("Creating/updating ingest pipeline")
     processors = [
-        {
-            "inference": {
-                "model_id": ".elser_model_2",
-                "input_output": [
-                    {
-                        "input_field": "summary",
-                        "output_field": "summary_embeddings"
-                    }
-                ]
-            }
-        },
         {
             "inference": {
                 "model_id": ".elser_model_2",
