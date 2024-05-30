@@ -2,7 +2,9 @@
 
 A Python program to set up the Intel Analysis Workshop
 
-This script will generate a bunch of fake intelligence reports and upload them to Elasticsearch for analysis.
+This repo contains:
+- `intel-generator.py`, a script that will generate a bunch of fake intelligence reports and upload them to Elasticsearch for analysis.
+- `genai-intel-demo.py`, a Retrieval Augmented Generation (RAG) demo frontend to query the fake intel reports.
 
 ### Quickstart
 1. Clone this repo
