@@ -15,22 +15,22 @@ pip3 install -r requirements.txt
 
 4. Make a copy of `config.toml`, rename it to something memorable, and fill in the required settings:
 ```
-- NUM_REPORTS = number of fake reports to generate
+NUM_REPORTS = number of fake reports to generate
 
-- ELASTIC_CLOUD_ID = Elastic cloud ID to send output to
-- ELASTIC_USER = Elasticsearch username to use
-- ELASTIC_PASSWORD = Elasticsearch password to use
-- ELASTIC_INDEX = index name to use (recommend "intel-reports")
+ELASTIC_CLOUD_ID = Elastic cloud ID to send output to
+ELASTIC_USER = Elasticsearch username to use
+ELASTIC_PASSWORD = Elasticsearch password to use
+ELASTIC_INDEX = index name to use (recommend "intel-reports")
 
-- AZURE_OPENAI_API_KEY = Azure OpenAI key
-- AZURE_API_VERSION = Azure OpenAI API version (recommend "2024-02-01")
-- AZURE_ENDPOINT = Azure OpenAI endpoint URL
-- AZURE_DEPLOYMENT = Azure OpenAI deployment name
-- AZURE_MODEL = Azure OpenAI model to use
+AZURE_OPENAI_API_KEY = Azure OpenAI key
+AZURE_API_VERSION = Azure OpenAI API version (recommend "2024-02-01")
+AZURE_ENDPOINT = Azure OpenAI endpoint URL
+AZURE_DEPLOYMENT = Azure OpenAI deployment name
+AZURE_MODEL = Azure OpenAI model to use
 
-- LOCAL_LLM_URL = URL of self-hosted LLM to use (e.g. http://1.2.3.4:1234/v1)
-- LOCAL_LLM_API_KEY = self-hosted LLM API key (if security is not enabled, this can be anything)
-- LOCAL_LLM_MODEL = self-hosted model to use (e.g. mixtral)
+LOCAL_LLM_URL = URL of self-hosted LLM to use (e.g. http://1.2.3.4:1234/v1)
+LOCAL_LLM_API_KEY = self-hosted LLM API key (if security is not enabled, this can be anything)
+LOCAL_LLM_MODEL = self-hosted model to use (e.g. mixtral)
 ```
 4. Run the `intel-generator.py` script and substitute in your custom `config.toml` at runtime:
 ```
