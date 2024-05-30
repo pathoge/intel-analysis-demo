@@ -1,3 +1,4 @@
 elasticsearch
-streamlit
 openai
+streamlit
+watchdog
