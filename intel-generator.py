@@ -53,7 +53,7 @@ def setup_es(cloud_id, user, pw, index, reset):
                 "report_id": {"type": "keyword"},
                 "source": {"type": "keyword"},
                 "group": {"type": "keyword"},
-                "summary": {"type": "text"},
+                "summary": {"type": "text", "fields": {"suggest": {"type": "search_as_you_type"}}},
                 "country.name": {"type": "keyword"},
                 "country.coordinates": {"type": "geo_point"},
                 "country.code": {"type": "keyword"},
@@ -111,8 +111,6 @@ def yield_doc(docs):
 
 def random_date():
     current_datetime = datetime.now()
-    past_year = timedelta(days=365)
-    start_date = current_datetime - past_year
 
     random_timedelta = timedelta(
         days=random.randint(0, 365),
@@ -122,7 +120,7 @@ def random_date():
         microseconds=random.randint(0, 999999)
     )
 
-    random_datetime = start_date + random_timedelta
+    random_datetime = current_datetime - random_timedelta
     return random_datetime.strftime("%Y-%m-%dT%H:%M:%S.%f%z")
 
 
@@ -133,6 +131,27 @@ def generate_summary(details):
     else:
         summary = details
     return summary
+
+
+def create_report():
+    country = random.choice(countries)
+    group = random.choice(groups)
+    details = random.choice(details_options).format(country["name"], group, generate_selector())
+    summary = generate_summary(details)
+    report = {
+        "report_id": f"INT-2024-{i+1:03d}",
+        "date": random_date(),
+        "source": random.choice(sources),
+        "group": group,
+        "country.name": country["name"],
+        "country.coordinates": country["coordinates"],
+        "country.code": country["code"],
+        "summary": summary,
+        "details": details,
+        "classification": random.choice(classifications),
+        "compartments": random.sample(compartments, random.randint(1, 4))
+    }
+    return report
 
 
 if __name__ == "__main__":
@@ -154,28 +173,12 @@ if __name__ == "__main__":
     details_options = read_file("data/details.json")
     classifications = read_file("data/classifications.json")
     compartments = read_file("data/compartments.json")
+    precanned_events = read_file("data/precanned-events.json")
 
     logging.info(f"Creating {config_data['NUM_REPORTS']} fake intel reports")
     intelligence_reports = []
     for i in range(config_data["NUM_REPORTS"]):
-        country = random.choice(countries)
-        group = random.choice(groups)
-        details = random.choice(details_options).format(country["name"], group, generate_selector())
-        summary = generate_summary(details)
-
-        report = {
-            "report_id": f"INT-2024-{i+1:03d}",
-            "date": random_date(),
-            "source": random.choice(sources),
-            "group": group,
-            "country.name": country["name"],
-            "country.coordinates": country["coordinates"],
-            "country.code": country["code"],
-            "summary": summary,
-            "details": details,
-            "classification": random.choice(classifications),
-            "compartments": random.sample(compartments, random.randint(1, 4))
-        }
+        report = create_report()
         intelligence_reports.append(report)
 
     es = setup_es(
@@ -185,6 +188,9 @@ if __name__ == "__main__":
         config_data["INDEX"],
         args.reset,
     )
-    bulk_ingest(es, config_data["INDEX"], intelligence_reports)
+
+    bulk_ingest(es, config_data["INDEX"], intelligence_reports + precanned_events)
+
+    # reset index settings back to normal settings now that ingest is complete
     settings = {"index": {"number_of_replicas": "1", "refresh_interval": "1s"}}
     es.indices.put_settings(index=config_data["INDEX"], settings=settings)
