@@ -1,6 +1,6 @@
-## Intel-Workshop
+## Intel-Generator
 
-A Python program to set up the Intel Analysis Workshop
+This repo contains some artificats & programs to create fake intelligence reports, index them into Elasticsearch, and query them using a Retrieval Augmented Generation demo app.
 
 This repo contains:
 - `intel-generator.py`, a script that will generate a bunch of fake intelligence reports and upload them to Elasticsearch for analysis.
