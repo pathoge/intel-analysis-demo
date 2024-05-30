@@ -3,6 +3,7 @@ import json
 import logging
 import random
 import tomllib
+import uuid
 from datetime import datetime, timedelta
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import streaming_bulk, BulkIndexError
@@ -85,6 +86,8 @@ def setup_es(cloud_id, user, pw, index, reset):
     es.ingest.put_pipeline(id="intel-workshop", processors=processors)
     return es
 
+def generate_selector():
+    return str(uuid.uuid4())
 
 def bulk_ingest(es, index, docs):
     try:
@@ -157,7 +160,7 @@ if __name__ == "__main__":
     for i in range(config_data["NUM_REPORTS"]):
         country = random.choice(countries)
         group = random.choice(groups)
-        details = random.choice(details_options).format(country["name"], group)
+        details = random.choice(details_options).format(country["name"], group, generate_selector())
         summary = generate_summary(details)
 
         report = {
