@@ -271,7 +271,7 @@ def main():
     st.header("GenAI-Powered Intelligence Analysis", divider="grey")
 
     # sidebar
-    st.sidebar.image("logo-elastic-horizontal-color.png", width=100)
+    st.sidebar.image(".streamlit/logo-elastic-horizontal-color.png", width=100)
     st.sidebar.markdown("## Search Filter Options")
     date_range_selection = st.sidebar.selectbox(
         "Date Range:", ("All Time", "Last 30 Days", "This Year")
