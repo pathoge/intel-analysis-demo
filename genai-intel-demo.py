@@ -59,7 +59,7 @@ st.markdown(
 )
 
 
-def connect_open_ai(api_key, api_version, endpoint, deployment):
+def connect_open_ai(api_key: str, api_version: str, endpoint: str, deployment: str) -> AzureOpenAI:
     open_ai_client = AzureOpenAI(
         api_key=api_key,
         api_version=api_version,
@@ -69,19 +69,27 @@ def connect_open_ai(api_key, api_version, endpoint, deployment):
     return open_ai_client
 
 
-def connect_es(cloud_id, user, pw):
+def connect_self_hosted_llm(base_url: str, api_key: str) -> OpenAI:
+    open_ai_client = OpenAI(
+        base_url=config["LOCAL_LLM_URL"], 
+        api_key=config["LOCAL_LLM_API_KEY"]
+    )
+    return open_ai_client
+
+
+def connect_es(cloud_id: str, user: str, pw: str) -> Elasticsearch:
     es = Elasticsearch(cloud_id=cloud_id, basic_auth=(user, pw))
     return es
 
 
-def read_config(config_path):
+def read_config(config_path: str) -> dict:
     with open(config_path, "rb") as f:
         config = tomllib.load(f)
 
     return config
 
 
-def parse_filters(filters):
+def parse_filters(filters: dict) -> dict:
     date_range = "now-100y"
     if filters["date_range"] == "All Time":
         date_range = "now-1000y"
@@ -93,7 +101,7 @@ def parse_filters(filters):
     return {"range": {"date": {"gte": date_range}}}
 
 
-def elasticsearch_basic(query_text, filters):
+def elasticsearch_basic(query_text: str, filters: dict) -> dict:
     logging.info(f"Performing Elasticsearch basic query for user search: {query_text}")
     date_range = parse_filters(filters)
     query = {
@@ -122,7 +130,7 @@ def elasticsearch_basic(query_text, filters):
     return {"source_docs": hits}
 
 
-def elasticsearch_elser(query_text, filters):
+def elasticsearch_elser(query_text: str, filters: dict) -> dict:
     logging.info(
         f"Performing Elasticsearch text expansion query for user search: {query_text}"
     )
@@ -146,16 +154,16 @@ def elasticsearch_elser(query_text, filters):
             }
         },
     }
-    res = es.search(index="intel-reports", body=query)
+    res = es.search(index=config["ELASTIC_INDEX"], body=query)
     hits = [hit["_source"] for hit in res["hits"]["hits"]]
     return {"source_docs": hits}
 
 
-def llm(query_text):
+def llm(query_text: str) -> dict:
     logging.info(f"Performing LLM passthrough query for user search: {query_text}")
 
     response = open_ai_client.chat.completions.create(
-        model = model_name,
+        model=model_name,
         # model="gpt-4o",
         # model="mixtral",
         temperature=0,
@@ -168,6 +176,7 @@ def llm(query_text):
                     If you don't know the answer, say that you don't know. 
                     Don't hallucinate. 
                     Don't ask follow up questions.
+                    Do not include the number of words in your response.
                 """,
             },
             {"role": "user", "content": query_text},
@@ -176,7 +185,7 @@ def llm(query_text):
     return {"llm_response": response.choices[0].message.content.strip()}
 
 
-def rag(query_text, filters):
+def rag(query_text: str, filters: dict) -> dict:
     logging.info(f"Performing RAG query for user search: {query_text}")
     es_hits = elasticsearch_elser(query_text, filters)["source_docs"]
     prompt = f"""
@@ -189,6 +198,7 @@ def rag(query_text, filters):
         Keep in mind today's date is {today}.
         Keep your answer grounded in the facts of the intelligence reports.
         Summarize the intelligence report's details field and respond using 20 words or less.
+        Do not include the number of words in your response.
     """
 
     logging.info(
@@ -199,7 +209,7 @@ def rag(query_text, filters):
     while not success:
         response = open_ai_client.chat.completions.create(
             temperature=0,
-            model = model_name,
+            model=model_name,
             # model="gpt-4o",
             # model="mixtral",
             messages=[
@@ -208,7 +218,7 @@ def rag(query_text, filters):
             ],
         )
         # check if the response got filtered by content filter
-        if hasattr(response.choices[0], 'content_filter_results'):
+        if hasattr(response.choices[0], "content_filter_results"):
             cfr = response.choices[0].content_filter_results
             if any(item.get("filtered", False) for item in cfr.values()):
                 logging.info("Failed due to content filtering. Retrying")
@@ -227,7 +237,7 @@ def rag(query_text, filters):
             }
 
 
-def search(query_text, search_method, filters):
+def search(query_text: str, search_method: str, filters: dict) -> tuple:
     # post_data = json.dumps({"query_text": query} | {"filters": filters})
     if search_method == "**Elasticsearch Basic**":
         response = elasticsearch_basic(query_text, filters)
@@ -246,7 +256,7 @@ def search(query_text, search_method, filters):
         return response["llm_response"], response["source_docs"]
 
 
-def get_classification_level(classification):
+def get_classification_level(classification: str) -> int:
     level_map = {
         "UNCLASSIFIED": 0,
         "HUSH HUSH": 1,
@@ -359,10 +369,9 @@ if __name__ == "__main__":
     )
 
     if args.local_llm:
-        open_ai_client = OpenAI(
-            base_url=config["LOCAL_LLM_URL"],
-            api_key=config["LOCAL_LLM_API_KEY"]
-            )
+        open_ai_client = connect_self_hosted_llm(
+            config["LOCAL_LLM_URL"], config["LOCAL_LLM_API_KEY"]
+        )
         model_name = config["LOCAL_LLM_MODEL"]
     else:
         open_ai_client = connect_open_ai(
