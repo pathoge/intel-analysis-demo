@@ -1,4 +1,4 @@
-## Intel-Generator
+## Intel Analysis Demo
 
 This repo contains some artificats & programs to create fake intelligence reports, index them into Elasticsearch, and query them using a Retrieval Augmented Generation demo app.
 
