@@ -1,5 +1,9 @@
-NUM_REPORTS = 5000
+NUM_REPORTS = 300
 CLOUD_ID = "cluster:jlahdslkjfahlsdkjfhadflkjh=="
 USER = "elastic"
 PASSWORD = "lahjsdfkjlhasdf"
 INDEX = "intel-reports"
+OPENAI_API_KEY = "asdfasdfadsf"
+API_VERSION = "2024-02-01"
+ENDPOINT = "https://my-endpoint.openai.azure.com"
+DEPLOYMENT = "my-deployment"
