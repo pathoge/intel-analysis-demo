@@ -14,6 +14,7 @@ pip3 install -r requirements.txt
 4. Make a copy of `config.toml`, rename it to something memorable, and fill in the required settings:
 ```
 - NUM_REPORTS = number of fake reports to generate
+
 - ELASTIC_CLOUD_ID = Elastic cloud ID to send output to
 - ELASTIC_USER = Elasticsearch username to use
 - ELASTIC_PASSWORD = Elasticsearch password to use
