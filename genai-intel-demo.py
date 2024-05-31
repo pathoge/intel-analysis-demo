@@ -125,7 +125,7 @@ def elasticsearch_basic(query_text: str, filters: dict) -> dict:
             "fields": {"details": {"fragment_size": 1000}},
         },
     }
-    res = es.search(index="intel-reports", body=query)
+    res = es.search(index=config["ELASTIC_INDEX"], body=query)
     hits = [hit["_source"] | hit["highlight"] for hit in res["hits"]["hits"]]
     return {"source_docs": hits}
 
