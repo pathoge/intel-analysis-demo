@@ -177,20 +177,20 @@ if __name__ == "__main__":
 
     logging.info(f"Creating {config_data['NUM_REPORTS']} fake intel reports")
     intelligence_reports = []
-    for i in range(config_data["NUM_REPORTS"]):
+    for i in range(config_data["ELASTIC_NUM_REPORTS"]):
         report = create_report()
         intelligence_reports.append(report)
 
     es = setup_es(
-        config_data["CLOUD_ID"],
-        config_data["USER"],
-        config_data["PASSWORD"],
-        config_data["INDEX"],
+        config_data["ELASTIC_CLOUD_ID"],
+        config_data["ELASTIC_USER"],
+        config_data["ELASTIC_PASSWORD"],
+        config_data["ELASTIC_INDEX"],
         args.reset,
     )
 
-    bulk_ingest(es, config_data["INDEX"], intelligence_reports + precanned_events)
+    bulk_ingest(es, config_data["ELASTIC_INDEX"], intelligence_reports + precanned_events)
 
     # reset index settings back to normal settings now that ingest is complete
     settings = {"index": {"number_of_replicas": "1", "refresh_interval": "1s"}}
-    es.indices.put_settings(index=config_data["INDEX"], settings=settings)
+    es.indices.put_settings(index=config_data["ELASTIC_INDEX"], settings=settings)
