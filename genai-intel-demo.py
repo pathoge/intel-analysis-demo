@@ -84,7 +84,6 @@ def connect_self_hosted_llm(base_url: str, api_key: str) -> OpenAI:
 
 def connect_es(config: dict) -> Elasticsearch:
     if "ELASTIC_API_KEY" in config:
-        logging.info("foo")
         try:
             client = Elasticsearch(
                 cloud_id=config["ELASTIC_CLOUD_ID"],
@@ -96,7 +95,6 @@ def connect_es(config: dict) -> Elasticsearch:
         except Exception:
             pass
     if "ELASTIC_USER" in config and "ELASTIC_PASSWORD" in config:
-        logging.info("bar")
         try:
             client = Elasticsearch(
                 cloud_id=config["ELASTIC_CLOUD_ID"],
