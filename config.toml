@@ -1,8 +1,9 @@
 NUM_REPORTS = 300
 
 ELASTIC_CLOUD_ID = "cluster:jlahdslkjfahlsdkjfhadflkjh=="
-ELASTIC_USER = "elastic"
-ELASTIC_PASSWORD = "lahjsdfkjlhasdf"
+ELASTIC_API_KEY = "jhdfjkahdsfj" # optional if using username/password
+ELASTIC_USER = "elastic" # optional if using API key
+ELASTIC_PASSWORD = "lahjsdfkjlhasdf" # optional if using API key
 ELASTIC_INDEX = "intel-reports"
 
 AZURE_OPENAI_API_KEY = "asdfasdfadsf"
