@@ -130,7 +130,7 @@ def setup_es(es, reset):
                 "report_id": {"type": "keyword"},
                 "source": {"type": "keyword"},
                 "group": {"type": "keyword"},
-                "summary": {"type": "text", "fields": {"suggest": {"type": "search_as_you_type"}}},
+                "summary": {"type": "text"},
                 "country.name": {"type": "keyword"},
                 "country.coordinates": {"type": "geo_point"},
                 "country.code": {"type": "keyword"},
@@ -448,7 +448,7 @@ def main():
     )
     st.sidebar.empty()
     if st.sidebar.checkbox("Data Setup"):
-        if st.sidebar.button("Generate and index intel reports", ):
+        if st.sidebar.button(label="Generate and index intel reports", type="primary"):
             # create reports
             logging.info(f"Creating {config['NUM_REPORTS']} fake intel reports")
             intelligence_reports = []
