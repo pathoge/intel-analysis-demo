@@ -193,20 +193,16 @@ def bulk_ingest(es, index, docs):
                 progress_bar.progress(x / len(docs), text=f"Ingested {x} documents...")
             else:
                 logging.error(f"{ok} {action}")
+        return True, None
     except BulkIndexError as e:
         print(f"{len(e.errors)} document(s) failed to index.")
         for error in e.errors:
             print(error)
+        return False, e.errors[0]
 
 
 def yield_doc(docs):
-    # i = 0
-    # progress_bar = st.sidebar.progress(0)
-
     for doc in docs:
-        # print(json.dumps(doc))
-        # prog = (i + 1) / len(docs) * 100
-        # progress_bar.progress(prog)
         yield json.dumps(doc)
 
 
@@ -464,13 +460,16 @@ def main():
             setup_es(es, reset=True)
 
             # ingest reports into Elasticsearch
-            bulk_ingest(es, config["ELASTIC_INDEX"], intelligence_reports + precanned_events)
+            ok, err = bulk_ingest(es, config["ELASTIC_INDEX"], intelligence_reports + precanned_events)
+            if not ok:
+                st.sidebar.write(err)
 
-            # reset index settings back to normal settings now that ingest is complete
-            settings = {"index": {"number_of_replicas": "1", "refresh_interval": "1s"}}
-            es.indices.put_settings(index=config["ELASTIC_INDEX"], settings=settings)
+            else:
+                # reset index settings back to normal settings now that ingest is complete
+                settings = {"index": {"number_of_replicas": "1", "refresh_interval": "1s"}}
+                es.indices.put_settings(index=config["ELASTIC_INDEX"], settings=settings)
 
-            st.sidebar.markdown("**Done!**")
+                st.sidebar.markdown("**Done!**")
 
     # search method options
     search_method = st.radio(
