@@ -508,7 +508,7 @@ def main():
             )
             for x in range(len(json_result)):
                 doc = json_result[x]
-                with st.expander(f"**Intelligence Report ID {doc["report_id"]}** - {doc["summary"][:70]}..."):
+                with st.expander(f"**Intelligence Report ID {doc["report_id"]}** - {doc["summary"][:65]}..."):
                     st.markdown(f"**Classification**: {doc["classification"]}")
                     st.markdown(f"**Compartments**: {', '.join(doc["compartments"])}")
                     st.markdown(
