@@ -536,21 +536,20 @@ if __name__ == "__main__":
     parser.add_argument(
         "-c", "--config", action="store", dest="config_path", default="config.toml"
     )
-    parser.add_argument(
-        "-l", "--local-llm", action="store_true", dest="local_llm", default=False
-    )
     args = parser.parse_args()
 
     config = read_config(args.config_path)
 
     es = connect_es(config)
 
-    if args.local_llm:
+    if "LOCAL_LLM" in config and ( config["LOCAL_LLM"] == "True" or config["LOCAL_LLM"] == "true" ):
+        logging.info("Local LLM selected via config. Using locally hosted LLM")
         open_ai_client = connect_self_hosted_llm(
             config["LOCAL_LLM_URL"], config["LOCAL_LLM_API_KEY"]
         )
         model_name = config["LOCAL_LLM_MODEL"]
     else:
+        logging.info("Using Azure OpenAI LLM")
         open_ai_client = connect_open_ai(
             config["AZURE_OPENAI_API_KEY"],
             config["AZURE_API_VERSION"],
