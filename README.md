@@ -36,6 +36,10 @@ LOCAL_LLM_MODEL = self-hosted model to use (e.g. mixtral)
 ```
 docker run --rm -v ./config-pathoge.toml:/app/config.toml --name ia-genai-demo -p 8501:8501 ia-genai-demo:latest
 ```
+NOTE: On Windows you may have to run a slightly modified command:
+```
+docker run --rm -v //$(PWD)/config-pathoge.toml:/app/config.toml --name ia-genai-demo -p 8501:8501 ia-genai-demo:latest
+```
 
 5. Navigate to http://localhost:8501 in your favorite web browser.
 
