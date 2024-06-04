@@ -3,6 +3,11 @@
 This repo contains artificats & Python programs to generator completely fake intelligence reports, index them into Elasticsearch, and query them using a Retrieval Augmented Generation (RAG) demo app.
 
 ### Quickstart - Docker (recommended)
+0. Prereqs:
+    - Install Docker
+    - Create an Elastic Cloud deployment. You'll need the cloud ID and an API key for it.
+    - Get an Azure OpenAI deployment + credentials.
+
 1. Clone this repo & change directories into the repo folder
 
 2. Build the Docker container:
@@ -26,7 +31,7 @@ AZURE_ENDPOINT = Azure OpenAI endpoint URL
 AZURE_DEPLOYMENT = Azure OpenAI deployment name
 AZURE_MODEL = Azure OpenAI model to use
 
-LOCAL_LLM = "true"
+LOCAL_LLM = "false"
 LOCAL_LLM_URL = URL of self-hosted LLM to use (e.g. http://1.2.3.4:1234/v1)
 LOCAL_LLM_API_KEY = self-hosted LLM API key (if security is not enabled, this can be anything)
 LOCAL_LLM_MODEL = self-hosted model to use (e.g. mixtral)
