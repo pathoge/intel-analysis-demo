@@ -1,4 +1,4 @@
-## Intel Analysis Demo
+## GenAI-Powered Intelligence Analysis Demo
 
 This repo contains artificats & Python programs to generator completely fake intelligence reports, index them into Elasticsearch, and query them using a Retrieval Augmented Generation (RAG) demo app.
 
