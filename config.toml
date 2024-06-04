@@ -1,8 +1,9 @@
 NUM_REPORTS = 300
 
 ELASTIC_CLOUD_ID = "cluster:jlahdslkjfahlsdkjfhadflkjh=="
-ELASTIC_USER = "elastic"
-ELASTIC_PASSWORD = "lahjsdfkjlhasdf"
+ELASTIC_API_KEY = "jhdfjkahdsfj" # optional if using username/password
+ELASTIC_USER = "elastic" # optional if using API key
+ELASTIC_PASSWORD = "lahjsdfkjlhasdf" # optional if using API key
 ELASTIC_INDEX = "intel-reports"
 
 AZURE_OPENAI_API_KEY = "asdfasdfadsf"
@@ -11,6 +12,7 @@ AZURE_ENDPOINT = "https://my-endpoint.openai.azure.com"
 AZURE_DEPLOYMENT = "my-deployment"
 AZURE_MODEL = "gpt-4o"
 
+LOCAL_LLM = "false"
 LOCAL_LLM_URL = "http://1.2.3.4:11434/v1"
 LOCAL_LLM_API_KEY = "ollama"
 LOCAL_LLM_MODEL = "mixtral"
