@@ -23,45 +23,10 @@ today = datetime.today().strftime("%A, %B %d, %Y")
 
 st.set_page_config(page_title="GenAI-Powered Intelligence Analysis", page_icon="🔍")
 
-st.markdown(
-    """
-<style>
-    [data-testid="stAppViewBlockContainer"] {
-            padding: 3rem 1rem 10rem 1rem;
-    }
-    [data-testid="stSidebarUserContent"] {
-            padding-top: 4rem;
-	}
-	[data-testid="stDecoration"] {
-        background-image: none;
-		background-color: #00BFB3;
-	}
-    [data-testid="stToolbar"] {
-            display: none;
-	}
-    [data-testid=stSidebar] [data-testid=stImage]{
-        text-align: center;
-        display: block;
-        margin-left: auto;
-        margin-right: auto;
-        width: 100%;
-    }
-    [data-testid=stSidebar] [data-testid=stMarkdown]{
-        text-align: center;
-        display: block;
-        margin-left: auto;
-        margin-right: auto;
-        width: 100%;
-    }
-    [data-testid=stSidebar] [data-testid=stButton]{
-        text-align: center;
-    }
-    [data-testid=stTextInput] [data-testid=textInputRootElement] [data-baseweb="base-input"] {
-        background-color: white;
-    }
-</style>""",
-    unsafe_allow_html=True,
-)
+with open("./.streamlit/style.html", "r") as f:
+  style = f.read()
+  
+st.markdown(style, unsafe_allow_html=True)
 
 
 def connect_open_ai(api_key: str, api_version: str, endpoint: str, deployment: str) -> AzureOpenAI:
