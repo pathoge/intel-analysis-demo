@@ -411,30 +411,30 @@ def main():
     source_selection = st.sidebar.multiselect(
         "Sources", ["ALL", "GEOINT", "HUMINT", "SIGINT", "MASINT"], default=["ALL"]
     )
-    st.sidebar.empty()
-    if st.sidebar.checkbox("Data Setup"):
-        if st.sidebar.button(label="Generate and index intel reports", type="primary"):
-            # create reports
-            logging.info(f"Creating {config['NUM_REPORTS']} fake intel reports")
-            intelligence_reports = []
-            for i in range(config["NUM_REPORTS"]):
-                report = create_report(i)
-                intelligence_reports.append(report)
+    if not config["ELASTIC_CLOUD_ID"].endswith("MWY3ZGMzYjk0Lmti"):
+        if st.sidebar.checkbox("Data Setup"):
+            if st.sidebar.button(label="Generate and index intel reports", type="primary"):
+                # create reports
+                logging.info(f"Creating {config['NUM_REPORTS']} fake intel reports")
+                intelligence_reports = []
+                for i in range(config["NUM_REPORTS"]):
+                    report = create_report(i)
+                    intelligence_reports.append(report)
 
-            # setup Elasticsearch
-            setup_es(es, reset=True)
+                # setup Elasticsearch
+                setup_es(es, reset=True)
 
-            # ingest reports into Elasticsearch
-            ok, err = bulk_ingest(es, config["ELASTIC_INDEX"], intelligence_reports + precanned_events)
-            if not ok:
-                st.sidebar.write(err)
+                # ingest reports into Elasticsearch
+                ok, err = bulk_ingest(es, config["ELASTIC_INDEX"], intelligence_reports + precanned_events)
+                if not ok:
+                    st.sidebar.write(err)
 
-            else:
-                # reset index settings back to normal settings now that ingest is complete
-                settings = {"index": {"number_of_replicas": "1", "refresh_interval": "1s"}}
-                es.indices.put_settings(index=config["ELASTIC_INDEX"], settings=settings)
+                else:
+                    # reset index settings back to normal settings now that ingest is complete
+                    settings = {"index": {"number_of_replicas": "1", "refresh_interval": "1s"}}
+                    es.indices.put_settings(index=config["ELASTIC_INDEX"], settings=settings)
 
-                st.sidebar.markdown("**Done!**")
+                    st.sidebar.markdown("**Done!**")
 
     # search method options
     search_method = st.radio(
