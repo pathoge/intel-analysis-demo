@@ -8,7 +8,7 @@ This repo contains artifacts & Python programs to generate completely fake intel
 0. Prereqs:
     - Install Docker
     - Create an Elastic Cloud deployment. You'll need the cloud ID and an API key for it.
-        - Download and deploy the ELSER v2 model with the name `.elser_model_2`.
+        - Download and deploy the ELSER v2 model with the name `.elser_model_2_linux-x86_64`.
     - Get an Azure OpenAI deployment + credentials.
 
 1. Clone this repo & change directories into the repo folder
