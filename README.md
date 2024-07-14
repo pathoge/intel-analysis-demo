@@ -2,6 +2,8 @@
 
 This repo contains artifacts & Python programs to generate completely fake intelligence reports, index them into Elasticsearch, and query them using a Retrieval Augmented Generation (RAG) demo app.
 
+![screenshot](screenshot.png)
+
 ### Quickstart - Docker (recommended)
 0. Prereqs:
     - Install Docker
