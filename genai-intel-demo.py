@@ -81,11 +81,11 @@ def setup_es(es, reset):
     if not es.indices.exists(index=config["ELASTIC_INDEX"]):
         logging.info("Creating index")
         mapping = {
-            "_source": {
-                "excludes": [
-                    "details_embeddings"
-                ]
-            },
+            # "_source": {
+            #     "excludes": [
+            #         "details_embeddings"
+            #     ]
+            # },
             "properties": {
                 "classification": {"type": "keyword"},
                 "compartments": {"type": "keyword"},
@@ -103,9 +103,9 @@ def setup_es(es, reset):
         }
         settings = {
             "index": {
-                "number_of_shards": "2",
-                "number_of_replicas": "0",
-                "refresh_interval": "-1",
+                # "number_of_shards": "2",
+                # "number_of_replicas": "0",
+                # "refresh_interval": "-1",
                 "default_pipeline": "intel-workshop"
             }
         }
@@ -115,7 +115,7 @@ def setup_es(es, reset):
     processors = [
         {
             "inference": {
-                "model_id": ".elser_model_2",
+                "model_id": ".elser_model_2_linux-x86_64",
                 "input_output": [
                     {
                         "input_field": "details",
@@ -270,7 +270,7 @@ def elasticsearch_basic(query_text: str, filters: dict) -> dict:
         "highlight": {
             "pre_tags": ["**:violet-background["],
             "post_tags": ["]**"],
-            "fields": {"details": {"fragment_size": 1000}},
+            "fields": {"details": {"number_of_fragments": 0}},
         },
     }
     res = es.search(index=config["ELASTIC_INDEX"], body=es_query)
@@ -291,7 +291,7 @@ def elasticsearch_elser(query_text: str, filters: dict) -> dict:
                 "query": {
                     "sparse_vector": {
                         "field": "details_embeddings",
-                        "inference_id": ".elser_model_2",
+                        "inference_id": ".elser_model_2_linux-x86_64",
                         "query": query_text,
                     }
                 },
@@ -449,7 +449,8 @@ def main():
         placeholder="Select one or more",
         options = compartments
     )
-    if not config["ELASTIC_CLOUD_ID"].endswith("MWY3ZGMzYjk0Lmti"): # demo cluster is protected
+    # if not config["ELASTIC_CLOUD_ID"].endswith("MWY3ZGMzYjk0Lmti"): # demo cluster is protected
+    if not config["ELASTIC_CLOUD_ID"].endswith("xyz123"): # demo cluster is protected
         if st.sidebar.checkbox("Data Setup"):
             if st.sidebar.button(label="Generate and index intel reports", type="primary"):
                 # create reports
@@ -469,8 +470,8 @@ def main():
 
                 else:
                     # reset index settings back to normal settings now that ingest is complete
-                    settings = {"index": {"number_of_replicas": "1", "refresh_interval": "1s"}}
-                    es.indices.put_settings(index=config["ELASTIC_INDEX"], settings=settings)
+                    # settings = {"index": {"number_of_replicas": "1", "refresh_interval": "1s"}}
+                    # es.indices.put_settings(index=config["ELASTIC_INDEX"], settings=settings)
 
                     st.sidebar.markdown("**Done!**")
 
