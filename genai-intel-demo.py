@@ -399,7 +399,7 @@ def search(query_text: str, search_method: str, filters: dict) -> tuple:
         response = llm(query_text)
         return response["llm_response"], None
 
-    elif search_method == "**RAG w/ Elasticsearch**":
+    elif search_method == "**RAG w/ ELSER**":
         response = rag(query_text, filters)
         return response["llm_response"], response["source_docs"]
 
@@ -482,7 +482,7 @@ def main():
             "**Elasticsearch Basic**",
             "**ELSER**",
             "**LLM**",
-            "**RAG w/ Elasticsearch**",
+            "**RAG w/ ELSER**",
         ],
         horizontal=True,
     )
