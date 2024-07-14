@@ -1,4 +1,4 @@
-NUM_REPORTS = 300
+NUM_REPORTS = 30
 
 ELASTIC_CLOUD_ID = "cluster:jlahdslkjfahlsdkjfhadflkjh=="
 ELASTIC_API_KEY = "jhdfjkahdsfj" # optional if using username/password
