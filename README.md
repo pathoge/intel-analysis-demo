@@ -51,7 +51,7 @@ docker run --rm -v //$(PWD)/config-pathoge.toml:/app/config.toml --name ia-genai
 
 5. Navigate to http://localhost:8501 in your favorite web browser.
 
-6. (Initial run) In the sidebar of the web app, check the "Data setup" box and click the button to generate the intelligence reports and send them to your Elasticsearch cluster. WARNING: this action deletes the index if it already exists. It also requires the Elasticsearch cluster to have the ELSER v2 model already deployed and running with the name `.elser_model_2`. 
+6. (Initial run) In the sidebar of the web app, check the "Data setup" box and click the button to generate the intelligence reports and send them to your Elasticsearch cluster. WARNING: this action deletes the index if it already exists. It also requires the Elasticsearch cluster to have the ELSER v2 model already deployed and running with the name `.elser_model_2_linux-x86_64`. 
 
 ### Quickstart - Bare Python
 1. Clone this repo
