@@ -449,8 +449,8 @@ def main():
         placeholder="Select one or more",
         options = compartments
     )
-    # if not config["ELASTIC_CLOUD_ID"].endswith("MWY3ZGMzYjk0Lmti"): # demo cluster is protected
-    if not config["ELASTIC_CLOUD_ID"].endswith("xyz123"): # demo cluster is protected
+    if not config["ELASTIC_CLOUD_ID"].endswith("MWY3ZGMzYjk0Lmti"): # demo cluster is protected
+    # if not config["ELASTIC_CLOUD_ID"].endswith("xyz123"): # demo cluster is protected
         if st.sidebar.checkbox("Data Setup"):
             if st.sidebar.button(label="Generate and index intel reports", type="primary"):
                 # create reports
