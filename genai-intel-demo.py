@@ -217,33 +217,54 @@ def create_report(i):
 
 
 def parse_filters(filters: dict) -> dict:
-    date_range = "now-100y"
-    if filters["date_range"] == "All Time":
-        date_range = "now-1000y"
-    elif filters["date_range"] == "Last 30 Days":
-        date_range = "now-30d"
-    elif filters["date_range"] == "This Year":
-        date_range = "2024-01-01"
+    must = []
 
-    return {"range": {"date": {"gte": date_range}}}
+    # parse date range
+    if filters["date_range"] == "Last 30 Days":
+        date_filter = {"range": {"date": {"gte": "now-30d"}}}
+        must.append(date_filter)
+    elif filters["date_range"] == "This Year":
+        date_filter = {"range": {"date": {"gte": "2024-01-01"}}}
+        must.append(date_filter)
+
+    # parse countries selection
+    if len(filters["countries"]) > 0:
+        country_filter = {"terms": {"country.name": filters["countries"]}}
+        must.append(country_filter)
+
+    # parse classifications selection
+    if len(filters["classifications"]) > 0:
+        classification_filter = {"terms": {"classification": filters["classifications"]}}
+        must.append(classification_filter)
+
+    # parse sources selection
+    if len(filters["sources"]) > 0:
+        source_filter = {"terms": {"source": filters["sources"]}}
+        must.append(source_filter)
+
+    # parse compartments selection
+    if len(filters["compartments"]) > 0:
+        compartment_filter = {"terms": {"compartments": filters["compartments"]}}
+        must.append(compartment_filter)
+
+    final_filters = {"bool":{"must":must}}
+    return final_filters
 
 
 def elasticsearch_basic(query_text: str, filters: dict) -> dict:
     logging.info(f"Performing Elasticsearch basic query for user search: {query_text}")
-    date_range = parse_filters(filters)
-    query = {
+    search_filters = parse_filters(filters)
+    es_query = {
         "size": 3,
-        "query": {
-            "bool": {
-                "filter": [date_range],
-                "must": [
-                    {
-                        "query_string": {
-                            "default_field": "details",
-                            "query": query_text,
-                        }
+        "retriever": {
+            "standard": {
+                "query": {
+                    "query_string": {
+                        "default_field": "details",
+                        "query": query_text,
                     }
-                ],
+                },
+                "filter": search_filters
             }
         },
         "highlight": {
@@ -252,36 +273,33 @@ def elasticsearch_basic(query_text: str, filters: dict) -> dict:
             "fields": {"details": {"fragment_size": 1000}},
         },
     }
-    res = es.search(index=config["ELASTIC_INDEX"], body=query)
+    res = es.search(index=config["ELASTIC_INDEX"], body=es_query)
     hits = [hit["_source"] | hit["highlight"] for hit in res["hits"]["hits"]]
     return {"source_docs": hits}
 
 
 def elasticsearch_elser(query_text: str, filters: dict) -> dict:
     logging.info(
-        f"Performing Elasticsearch text expansion query for user search: {query_text}"
+        f"Performing Elasticsearch sparse vector query for user search: {query_text}"
     )
 
-    date_range = parse_filters(filters)
-
-    # perform ES text_expansion query
-    query = {
+    search_filters = parse_filters(filters)
+    es_query = {
         "size": 3,
-        "query": {
-            "bool": {
-                "filter": [date_range],
-                "must": {
-                    "text_expansion": {
-                        "details_embeddings": {
-                            "model_id": ".elser_model_2",
-                            "model_text": query_text,
-                        }
+        "retriever": {
+            "standard": {
+                "query": {
+                    "sparse_vector": {
+                        "field": "details_embeddings",
+                        "inference_id": ".elser_model_2",
+                        "query": query_text,
                     }
                 },
+                "filter": search_filters
             }
         },
     }
-    res = es.search(index=config["ELASTIC_INDEX"], body=query)
+    res = es.search(index="intel-reports", body=es_query)
     hits = [hit["_source"] for hit in res["hits"]["hits"]]
     return {"source_docs": hits}
 
@@ -363,11 +381,19 @@ def rag(query_text: str, filters: dict) -> dict:
 def search(query_text: str, search_method: str, filters: dict) -> tuple:
     if search_method == "**Elasticsearch Basic**":
         response = elasticsearch_basic(query_text, filters)
-        return "See below for reports.", response["source_docs"]
+        if len(response["source_docs"]) == 0:
+            text = "No results found."
+        else:
+            text = "See below for reports."
+        return text, response["source_docs"]
 
     elif search_method == "**ELSER**":
         response = elasticsearch_elser(query_text, filters)
-        return "See below for reports.", response["source_docs"]
+        if len(response["source_docs"]) == 0:
+            text = "No results found."
+        else:
+            text = "See below for reports."
+        return text, response["source_docs"]
 
     elif search_method == "**LLM**":
         response = llm(query_text)
@@ -396,22 +422,34 @@ def main():
     st.sidebar.image(".streamlit/logo-elastic-horizontal-color.png", width=100)
     st.sidebar.markdown("## Search Filter Options")
     date_range_selection = st.sidebar.selectbox(
-        "Date Range:", ("All Time", "Last 30 Days", "This Year")
+        label="Date Range", 
+        options=("All Time", "Last 30 Days", "This Year")
     )
     classification_selection = st.sidebar.multiselect(
-        "Classification",
-        ["ALL", "UNCLASSIFIED", "HUSH HUSH", "SUPER SECRET", "ULTRA SUPER SECRET"],
-        default=["ALL"],
+        label="Classification",
+        help="Defaults to All",
+        placeholder="Select one or more",
+        options=classifications
     )
     country_selection = st.sidebar.multiselect(
-        "Countries of Interest",
-        ["ALL", "Afghanistan", "Albania", "Algeria", "Andorra"],
-        default=["ALL"],
+        label="Countries of Interest",
+        help="Defaults to All",
+        placeholder="Select one or more",
+        options=[country["name"] for country in countries]
     )
     source_selection = st.sidebar.multiselect(
-        "Sources", ["ALL", "GEOINT", "HUMINT", "SIGINT", "MASINT"], default=["ALL"]
+        label="Sources",
+        help="Defaults to All",
+        placeholder="Select one or more",
+        options = sources
     )
-    if not config["ELASTIC_CLOUD_ID"].endswith("MWY3ZGMzYjk0Lmti"):
+    compartment_selection = st.sidebar.multiselect(
+        label="Compartments",
+        help="Defaults to All",
+        placeholder="Select one or more",
+        options = compartments
+    )
+    if not config["ELASTIC_CLOUD_ID"].endswith("MWY3ZGMzYjk0Lmti"): # demo cluster is protected
         if st.sidebar.checkbox("Data Setup"):
             if st.sidebar.button(label="Generate and index intel reports", type="primary"):
                 # create reports
@@ -461,15 +499,16 @@ def main():
                 "classifications": classification_selection,
                 "sources": source_selection,
                 "countries": country_selection,
+                "compartments": compartment_selection
             }
             text_result, json_result = search(search_query, search_method, filters)
         st.write("")
         st.markdown(f"##### **{text_result}**")
         st.write("")
         if json_result:
-            classifications = [report["classification"] for report in json_result]
+            report_classifications = [report["classification"] for report in json_result]
             st.markdown(
-                f"*Highest classification of returned results: {max(classifications, key=get_classification_level)}*"
+                f"*Highest classification of returned results: {max(report_classifications, key=get_classification_level)}*"
             )
             for x in range(len(json_result)):
                 doc = json_result[x]
@@ -480,6 +519,7 @@ def main():
                         f"**Report Date**: {datetime.strptime(doc["date"], "%Y-%m-%dT%H:%M:%S.%f").strftime("%A, %B %d, %Y")}"
                     )
                     st.markdown(f"**Summary**: {doc["summary"]}")
+                    st.markdown(f"**Country**: {doc["country.name"] if "country.name" in doc else doc["country"]["name"]}")
                     st.markdown(f"**Source of Intel**: {doc["source"]}")
                     if isinstance(doc["details"], list):
                         st.markdown(f"**Details**: {doc["details"][0]}")
