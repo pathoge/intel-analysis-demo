@@ -23,7 +23,7 @@ today = datetime.today().strftime("%A, %B %d, %Y")
 
 st.set_page_config(page_title="GenAI-Powered Intelligence Analysis", page_icon="🔍")
 
-with open("./.streamlit/style.html", "r") as f:
+with open(".streamlit/style.html", "r") as f:
   style = f.read()
   
 st.markdown(style, unsafe_allow_html=True)
@@ -449,8 +449,7 @@ def main():
         placeholder="Select one or more",
         options = compartments
     )
-    if not config["ELASTIC_CLOUD_ID"].endswith("MWY3ZGMzYjk0Lmti"): # demo cluster is protected
-    # if not config["ELASTIC_CLOUD_ID"].endswith("xyz123"): # demo cluster is protected
+    if not config["ELASTIC_CLOUD_ID"].endswith("mExMzNiYWJmMzE0Lmti"): # demo cluster is protected
         if st.sidebar.checkbox("Data Setup"):
             if st.sidebar.button(label="Generate and index intel reports", type="primary"):
                 # create reports
